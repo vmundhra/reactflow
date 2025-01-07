@@ -21,6 +21,8 @@ import { initialEdges, edgeTypes } from './edges';
 import { NodeControls } from './components/NodeControls';
 import { ButtonNodeData } from './nodes/ButtonNode';
 import type { ButtonNode } from './nodes/types';
+import { Modal } from './components/Modal';
+import { useState } from 'react';
 
 // Define initial edges if not already defined
 const defaultEdges: Edge[] = [];
@@ -28,6 +30,9 @@ const defaultEdges: Edge[] = [];
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const onConnect = useCallback((params: Connection) => {
     console.log('New connection:', params);
@@ -43,7 +48,9 @@ export default function App() {
   }, [setEdges]);
 
   const handleEditNode = useCallback((node: Node) => {
-    // TODO: Implement edit modal/form
+    setSelectedNode(node);
+    setIsModalOpen(true);
+    setHasChanges(false);
     console.log('Edit node:', node);
   }, []);
 
@@ -101,6 +108,35 @@ export default function App() {
     ),
   }), [handleEditNode, handleDeleteNode]);
 
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedNode(null);
+    setHasChanges(false);
+  }, []);
+
+  const handleSaveChanges = useCallback((newLabel: string) => {
+    if (selectedNode) {
+      setNodes((nds) => 
+        nds.map((node) => {
+          if (node.id === selectedNode.id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                label: newLabel,
+                onClick: () => alert(`${newLabel} clicked!`)
+              }
+            };
+          }
+          return node;
+        })
+      );
+      setIsModalOpen(false);
+      setSelectedNode(null);
+      setHasChanges(false);
+    }
+  }, [selectedNode, setNodes]);
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
@@ -138,6 +174,13 @@ export default function App() {
           </button>
         </div>
       </ReactFlow>
+      <Modal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveChanges}
+        node={selectedNode}
+        hasChanges={hasChanges}
+      />
     </div>
   );
 }
