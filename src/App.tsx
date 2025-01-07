@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -8,30 +8,48 @@ import {
   useNodesState,
   useEdgesState,
   type OnConnect,
-  Node,
-  NodeProps,
-  Edge,
-  Connection,
+  type Node,
+  type NodeProps,
+  type Edge,
+  type Connection,
+  type NodeTypes,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 
-import { initialNodes, nodeTypes, getNextNodeId } from './nodes';
-import { initialEdges, edgeTypes } from './edges';
+import { initialNodes, getNextNodeId } from './nodes';
+import { initialEdges } from './edges';
 import { NodeControls } from './components/NodeControls';
-import { ButtonNodeData } from './nodes/ButtonNode';
-import type { ButtonNode } from './nodes/types';
+import { ButtonNode } from './nodes/ButtonNode';
+import { SourceNode } from './nodes/SourceNode';
+import type { AppNode, ButtonNode as ButtonNodeType, SourceNode as SourceNodeType, ButtonNodeData, SourceNodeData } from './nodes/types';
 import { Modal } from './components/Modal';
-import { useState } from 'react';
 
 // Define initial edges if not already defined
 const defaultEdges: Edge[] = [];
 
+const withControls = (
+  WrappedComponent: React.ComponentType<any>,
+  handleEdit: (node: AppNode) => void,
+  handleDelete: (node: AppNode) => void
+) => {
+  return React.memo((props: any) => (
+    <div style={{ position: 'relative' }}>
+      <NodeControls
+        node={props}
+        onEdit={() => handleEdit(props)}
+        onDelete={() => handleDelete(props)}
+      />
+      <WrappedComponent {...props} />
+    </div>
+  ));
+};
+
 export default function App() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(defaultEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
   const onConnect = useCallback((params: Connection) => {
@@ -47,17 +65,16 @@ export default function App() {
     ));
   }, [setEdges]);
 
-  const handleEditNode = useCallback((node: Node) => {
+  const handleEditNode = useCallback((node: AppNode) => {
     setSelectedNode(node);
     setIsModalOpen(true);
     setHasChanges(false);
     console.log('Edit node:', node);
   }, []);
 
-  const handleDeleteNode = useCallback((node: Node) => {
+  const handleDeleteNode = useCallback((node: AppNode) => {
     console.log('Deleting node:', node.id);
     setNodes((nodes) => nodes.filter((n) => n.id !== node.id));
-    // Also remove connected edges
     setEdges((edges) => edges.filter(
       (e) => e.source !== node.id && e.target !== node.id
     ));
@@ -67,13 +84,13 @@ export default function App() {
     setNodes((nodes) => {
       const nextId = getNextNodeId(nodes);
       const nodeNumber = parseInt(nextId.replace('node', ''), 10);
-      console.log('Adding node with ID:', nextId, 'Number:', nodeNumber); // Debug log
+      console.log('Adding node with ID:', nextId, 'Number:', nodeNumber);
       
       return [
         ...nodes,
         {
           id: nextId,
-          type: 'button' as const,
+          type: 'button',
           position: { 
             x: Math.random() * 500, 
             y: Math.random() * 500 
@@ -82,30 +99,14 @@ export default function App() {
             label: `Node ${nodeNumber}`,
             onClick: () => alert(`Node ${nodeNumber} clicked!`)
           }
-        } as ButtonNode
+        } as ButtonNodeType
       ];
     });
   }, [setNodes]);
 
-  // Custom node wrapper component
-  const NodeWrapper = ({ children, data }: { children: React.ReactNode, data: Node }) => (
-    <div style={{ position: 'relative' }}>
-      <NodeControls
-        node={data}
-        onEdit={handleEditNode}
-        onDelete={handleDeleteNode}
-      />
-      {children}
-    </div>
-  );
-
   const enhancedNodeTypes = useMemo(() => ({
-    ...nodeTypes,
-    button: (props: NodeProps<ButtonNodeData>) => (
-      <NodeWrapper data={props as unknown as Node}>
-        {nodeTypes.button(props)}
-      </NodeWrapper>
-    ),
+    button: withControls(ButtonNode, handleEditNode, handleDeleteNode),
+    source: withControls(SourceNode, handleEditNode, handleDeleteNode)
   }), [handleEditNode, handleDeleteNode]);
 
   const handleCloseModal = useCallback(() => {
@@ -114,19 +115,28 @@ export default function App() {
     setHasChanges(false);
   }, []);
 
-  const handleSaveChanges = useCallback((newLabel: string) => {
+  const handleSaveChanges = useCallback((updates: { 
+    label: string; 
+    sourceUrl?: string; 
+    dataKey?: string 
+  }) => {
     if (selectedNode) {
       setNodes((nds) => 
         nds.map((node) => {
           if (node.id === selectedNode.id) {
+            const updatedData = {
+              ...node.data,
+              ...updates,
+            };
+            
+            if (node.type === 'button') {
+              (updatedData as ButtonNodeData).onClick = () => alert(`${updates.label} clicked!`);
+            }
+
             return {
               ...node,
-              data: {
-                ...node.data,
-                label: newLabel,
-                onClick: () => alert(`${newLabel} clicked!`)
-              }
-            };
+              data: updatedData
+            } as AppNode;
           }
           return node;
         })
@@ -146,6 +156,8 @@ export default function App() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onEdit={handleEditNode}
+        onDelete={handleDeleteNode}
         fitView
         snapToGrid
         snapGrid={[15, 15]}

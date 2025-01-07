@@ -4,12 +4,23 @@ import { PositionLoggerNode } from './PositionLoggerNode';
 import { ButtonNode } from './ButtonNode';
 import type { ButtonNode as ButtonNodeType } from './types';
 import { AppNode } from './types';
+import { SourceNode } from './SourceNode';
 
 export const initialNodes: AppNode[] = [
   {
+    id: 'source1',
+    type: 'source',
+    position: { x: 100, y: 0 },
+    data: { 
+      label: 'Source Node',
+      sourceUrl: 'https://www.testapi.com/exampledata',
+      dataKey: 'results.data'
+    }
+  } as SourceNode,
+  {
     id: 'header',
     type: 'button',
-    position: { x: 100, y: 0 },
+    position: { x: 100, y: 100 },
     data: { 
       label: 'React Flow Pipeline'
     }
@@ -17,7 +28,7 @@ export const initialNodes: AppNode[] = [
   {
     id: 'node1',
     type: 'button',
-    position: { x: 175, y: 150 },
+    position: { x: 175, y: 200 },
     data: { 
       label: 'Node 1',
       onClick: () => alert('Node 1 clicked!')
@@ -27,8 +38,8 @@ export const initialNodes: AppNode[] = [
 
 export const initialEdges = [
   {
-    id: 'header-node1',
-    source: 'header',
+    id: 'source1-node1',
+    source: 'source1',
     target: 'node1',
     type: 'default',
     animated: true,
@@ -62,4 +73,5 @@ export const getNextNodeId = (nodes: AppNode[]) => {
 export const nodeTypes: NodeTypes = {
   'position-logger': PositionLoggerNode,
   'button': ButtonNode,
+  'source': SourceNode
 };

@@ -1,6 +1,16 @@
-import type { Node, BuiltInNode } from '@xyflow/react';
-import type { ButtonNodeData } from './ButtonNode';
+import type { Node } from '@xyflow/react';
 
-export type PositionLoggerNode = Node<{ label: string }, 'position-logger'>;
+export interface ButtonNodeData extends Record<string, unknown> {
+  label: string;
+  onClick?: () => void;
+}
+
+export interface SourceNodeData extends Record<string, unknown> {
+  label: string;
+  sourceUrl: string;
+  dataKey?: string;
+}
+
 export type ButtonNode = Node<ButtonNodeData, 'button'>;
-export type AppNode = BuiltInNode | PositionLoggerNode | ButtonNode;
+export type SourceNode = Node<SourceNodeData, 'source'>;
+export type AppNode = ButtonNode | SourceNode;

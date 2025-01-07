@@ -2,84 +2,66 @@
 
 # React Flow Pipeline
 
-A simple, interactive node-based pipeline builder created with React Flow. This project demonstrates basic CRUD operations for nodes in a visual pipeline interface, built on top of the React Flow starter template.
+A visual pipeline builder using React Flow, allowing users to create, edit, and manage data processing pipelines.
 
 ## Features
 
-- Visual node-based pipeline interface
-- Interactive node creation and management
-- CRUD operations for nodes with wrench/trash icons
-- Animated edge connections
-- Customizable node styling
-- Automatic node ID management
-- Responsive layout with grid snapping
-- Header node with custom styling
-- Regular nodes with consistent square dimensions
+- Drag and drop interface for pipeline creation
+- Multiple node types:
+  - Source nodes for data input
+  - Button nodes for transformations and actions
+- Node editing with custom modals
+- Real-time pipeline visualization
+- Connection management between nodes
+- CRUD operations for all nodes
+
+## Example Pipeline Flow
+
+![Example Pipeline Flow](public/ExampleA.png)
+
+In this example pipeline:
+1. **Data Source**: The entry point that fetches data from an API endpoint
+2. **Mutation A**: First transformation step of the data
+3. **Analysis A**: Processing and analysis of the transformed data
+4. **Pipeline Output**: Final output of the processed data
+
+Each node can be edited, deleted, or connected to other nodes to create a complete data processing pipeline.
 
 ## Tech Stack
 
 - React
 - TypeScript
 - React Flow (@xyflow/react)
-- React Markdown
 - Vite
 
 ## Getting Started
 
-You can get this template without forking/cloning the repo using \`degit\`:
-
-\`\`\`bash
-npx degit [your-repo-url] your-app-name
-\`\`\`
-
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm or yarn
-
-### Installation
-
-1. Install dependencies:
-\`\`\`bash
-npm install # or \`pnpm install\` or \`yarn install\`
-\`\`\`
-
-2. Start the development server:
-\`\`\`bash
-npm run dev
-\`\`\`
-
-While the development server is running, changes you make to the code will be automatically reflected in the browser!
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
 ## Usage
 
-- **Add Node**: Click the "Add Node" button in the top right corner
-- **Connect Nodes**: Drag from one node's handle to another's
-- **Edit Node**: Click the wrench icon on any node
-- **Delete Node**: Click the trash icon on any node
-- **Move Nodes**: Drag nodes to reposition them
-- **Pan & Zoom**: Use mouse wheel and drag on canvas
-
-## Project Structure
-
-\`\`\`
-src/
-├── components/     # Reusable components (NodeControls)
-├── nodes/         # Node type definitions and implementations
-│   ├── ButtonNode.tsx
-│   ├── types.ts
-│   └── index.ts
-├── App.tsx        # Main application component
-└── styles.css     # Global styles
-\`\`\`
+1. Click "Add Node" to add new nodes to the pipeline
+2. Drag nodes to position them
+3. Connect nodes by dragging from one node's output handle to another node's input handle
+4. Edit nodes by clicking the edit button (🔧) in the top-right corner
+5. Delete nodes using the delete button (🗑️) in the top-right corner
 
 ## Future Enhancements
 
-- Additional node types
-- Custom edge types
-- Node configuration panel
-- Save/Load functionality
-- Advanced routing options
+- Additional node types for different data operations
+- Data preview functionality
+- Pipeline validation
+- Save/Load pipeline configurations
+- Real-time data processing
+- Export/Import pipeline definitions
 
 ## Resources
 

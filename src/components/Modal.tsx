@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import type { AppNode } from '../nodes/types';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newLabel: string) => void;
-  node: any;
+  onSave: (updates: { label: string; sourceUrl?: string; dataKey?: string }) => void;
+  node: AppNode | null;
   hasChanges: boolean;
 }
 
@@ -75,8 +76,8 @@ const modalStyles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    opacity: hasChanges => hasChanges ? 1 : 0.5,
-    pointerEvents: hasChanges => hasChanges ? 'auto' : 'none',
+    opacity: (hasChanges: boolean) => hasChanges ? 1 : 0.5,
+    pointerEvents: (hasChanges: boolean) => hasChanges ? 'auto' : 'none',
   },
   formGroup: {
     marginBottom: '20px',
@@ -114,26 +115,29 @@ export const Modal: React.FC<ModalProps> = ({
   hasChanges: initialHasChanges 
 }) => {
   const [nodeLabel, setNodeLabel] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [dataKey, setDataKey] = useState('');
   const [hasChanges, setHasChanges] = useState(initialHasChanges);
 
-  // Reset state when a new node is loaded
   useEffect(() => {
     if (node && isOpen) {
       setNodeLabel(node.data.label || '');
+      setSourceUrl(node.data.sourceUrl || '');
+      setDataKey(node.data.dataKey || '');
       setHasChanges(false);
     }
   }, [node, isOpen]);
 
-  const handleLabelChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    setNodeLabel(evt.target.value);
-    setHasChanges(true);
-  }, []);
-
   const handleSave = useCallback(() => {
-    onSave(nodeLabel);
-  }, [nodeLabel, onSave]);
+    if (!node) return;
+    onSave({ 
+      label: nodeLabel, 
+      sourceUrl: node.type === 'source' ? sourceUrl : undefined,
+      dataKey: node.type === 'source' ? dataKey : undefined
+    });
+  }, [nodeLabel, sourceUrl, dataKey, node, onSave]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !node) return null;
 
   return (
     <div style={modalStyles.overlay}>
@@ -149,13 +153,49 @@ export const Modal: React.FC<ModalProps> = ({
             </label>
             <input
               id="nodeLabel"
-              className="nodrag"
               value={nodeLabel}
-              onChange={handleLabelChange}
+              onChange={(e) => {
+                setNodeLabel(e.target.value);
+                setHasChanges(true);
+              }}
               style={modalStyles.input}
-              placeholder="Enter node label"
             />
           </div>
+          
+          {node.type === 'source' && (
+            <>
+              <div style={modalStyles.formGroup}>
+                <label htmlFor="sourceUrl" style={modalStyles.label}>
+                  Source URL:
+                </label>
+                <input
+                  id="sourceUrl"
+                  value={sourceUrl}
+                  onChange={(e) => {
+                    setSourceUrl(e.target.value);
+                    setHasChanges(true);
+                  }}
+                  style={modalStyles.input}
+                  placeholder="https://api.example.com/data"
+                />
+              </div>
+              <div style={modalStyles.formGroup}>
+                <label htmlFor="dataKey" style={modalStyles.label}>
+                  Data Key:
+                </label>
+                <input
+                  id="dataKey"
+                  value={dataKey}
+                  onChange={(e) => {
+                    setDataKey(e.target.value);
+                    setHasChanges(true);
+                  }}
+                  style={modalStyles.input}
+                  placeholder="results.data"
+                />
+              </div>
+            </>
+          )}
           <div style={modalStyles.jsonPreview}>
             <ReactMarkdown>
               {`\`\`\`json
