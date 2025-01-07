@@ -1,55 +1,60 @@
 import React from 'react';
-import { Handle, Position, type NodeProps } from '@xyflow/react';
-import type { ButtonNodeData } from './types';
+import { Handle, Position } from '@xyflow/react';
+import type { ButtonNodeProps } from './types';
 
-type ButtonNodeProps = NodeProps<ButtonNodeData>;
+export const ButtonNode = React.memo(({ data, isConnectable = true }: ButtonNodeProps) => {
+  const handleStyle = { background: '#4CAF50' };
+  const isHeader = data.label === 'React Flow Pipeline';
+  const isHorizontal = data.isHorizontal;
 
-export const ButtonNode = React.memo(({ 
-  data,
-  isConnectable,
-  id
-}: ButtonNodeProps) => {
-  const isHeader = id === 'header';
+  // Don't show handles for header node
+  if (isHeader) {
+    return (
+      <div style={{
+        padding: '10px',
+        borderRadius: '3px',
+        border: '1px solid #4CAF50',
+        background: 'white',
+        minWidth: '150px'
+      }}>
+        <div style={{ 
+          fontSize: '16px',
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}>
+          {data.label}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="button-node" style={{
-      padding: '15px',
-      borderRadius: '4px',
-      border: '2px solid #4CAF50',
-      backgroundColor: 'white',
-      minWidth: isHeader ? '300px' : '150px',
-      textAlign: isHeader ? 'center' : 'left'
+    <div style={{
+      padding: '10px',
+      borderRadius: '3px',
+      border: '1px solid #4CAF50',
+      background: 'white',
+      minWidth: '150px',
+      position: 'relative'
     }}>
-      {!isHeader && (
-        <div style={{ 
-          fontSize: '12px', 
-          color: '#666',
-          marginBottom: '8px'
-        }}>
-          🔘 Button
-        </div>
-      )}
+      <Handle
+        type="target"
+        position={isHorizontal ? Position.Left : Position.Top}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
       <div style={{ 
-        fontWeight: 'bold', 
-        marginBottom: '8px',
-        fontSize: isHeader ? '18px' : '14px'
+        fontSize: '14px',
+        textAlign: 'center'
       }}>
         {data.label}
       </div>
-      {!isHeader && (
-        <>
-          <Handle
-            type="target"
-            position={Position.Top}
-            isConnectable={isConnectable}
-          />
-          <Handle
-            type="source"
-            position={Position.Bottom}
-            isConnectable={isConnectable}
-          />
-        </>
-      )}
+      <Handle
+        type="source"
+        position={isHorizontal ? Position.Right : Position.Bottom}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
     </div>
   );
 }); 

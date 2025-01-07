@@ -1,48 +1,49 @@
 import React from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
+import type { SourceNodeProps } from './types';
 
-export interface SourceNodeData {
-  label: string;
-  sourceUrl: string;
-  dataKey?: string;
-}
+export const SourceNode = React.memo(({ data, isConnectable = true }: SourceNodeProps) => {
+  const handleStyle = { background: '#4CAF50' };
+  const isHorizontal = data.isHorizontal;
 
-export const SourceNode: React.FC<NodeProps<SourceNodeData>> = ({ 
-  data,
-  isConnectable 
-}) => {
   return (
-    <div className="source-node" style={{
-      padding: '15px',
-      borderRadius: '4px',
-      border: '2px solid #2196F3',
-      backgroundColor: 'white',
-      minWidth: '200px'
+    <div style={{
+      padding: '10px',
+      borderRadius: '3px',
+      border: '1px solid #1E88E5',
+      background: 'white',
+      minWidth: '200px',
+      position: 'relative'
     }}>
       <div style={{ 
         fontSize: '12px', 
         color: '#666',
-        marginBottom: '8px'
+        marginBottom: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px'
       }}>
-        🔗 Source
-      </div>
-      <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-        {data.label}
+        <span>🔗 Source</span>
       </div>
       <div style={{ 
+        fontSize: '14px',
+        marginBottom: '8px'
+      }}>
+        {data.label}
+      </div>
+      <div style={{
         fontSize: '12px',
-        backgroundColor: '#f5f5f5',
-        padding: '4px',
-        borderRadius: '4px',
+        color: '#666',
         wordBreak: 'break-all'
       }}>
         {data.sourceUrl}
       </div>
       <Handle
         type="source"
-        position={Position.Bottom}
+        position={isHorizontal ? Position.Right : Position.Bottom}
+        style={handleStyle}
         isConnectable={isConnectable}
       />
     </div>
   );
-}; 
+}); 

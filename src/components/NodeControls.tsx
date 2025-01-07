@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Node } from '@xyflow/react';
+import { nodeControlsStyles } from '../styles/nodeControlsStyles';
 
 interface NodeControlsProps {
   node: Node;
@@ -13,30 +14,13 @@ export const NodeControls: React.FC<NodeControlsProps> = ({ node, onEdit, onDele
   if (isHeader) return null;
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: '-10px',
-      right: '-10px',
-      display: 'flex',
-      gap: '4px',
-      zIndex: 1000,
-    }}>
+    <div style={nodeControlsStyles.container}>
       <button
         onClick={(e) => {
           e.stopPropagation();
           onEdit(node);
         }}
-        style={{
-          border: 'none',
-          background: '#f5f5f5',
-          borderRadius: '4px',
-          padding: '4px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        }}
+        style={nodeControlsStyles.button}
       >
         🔧
       </button>
@@ -45,17 +29,7 @@ export const NodeControls: React.FC<NodeControlsProps> = ({ node, onEdit, onDele
           e.stopPropagation();
           onDelete(node);
         }}
-        style={{
-          border: 'none',
-          background: '#f5f5f5',
-          borderRadius: '4px',
-          padding: '4px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        }}
+        style={nodeControlsStyles.button}
       >
         🗑️
       </button>
