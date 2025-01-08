@@ -10,7 +10,7 @@ export const RotationControl: React.FC<RotationControlProps> = ({ isHorizontal, 
     <div style={{
       position: 'absolute',
       top: '10px',
-      left: '10px',
+      left: '60px',
       zIndex: 4,
       backgroundColor: 'white',
       borderRadius: '4px',

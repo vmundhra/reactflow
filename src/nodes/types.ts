@@ -27,6 +27,7 @@ export interface ApiNodeData extends BaseNodeData {
   lastRun?: Date;
   executeApiCall?: () => Promise<void>;
   onUpdate?: (data: ApiNodeData) => void;
+  input?: any;
   [key: string]: any;
 }
 

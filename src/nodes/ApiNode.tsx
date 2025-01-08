@@ -3,7 +3,7 @@ import { Handle, Position, NodeResizer } from '@xyflow/react';
 import ReactMarkdown from 'react-markdown';
 import type { ApiNodeProps } from './types';
 import { storage } from '../utils/storage';
-import { api } from '../utils/api';
+import { fetchLocalData } from '../config/localApi';
 
 export const ApiNode = React.memo(({ data, isConnectable = true, selected }: ApiNodeProps) => {
   const [showOutput, setShowOutput] = useState(false);
@@ -23,78 +23,21 @@ export const ApiNode = React.memo(({ data, isConnectable = true, selected }: Api
   // Move apiCall function definition outside useEffect
   const apiCall = async () => {
     try {
-      console.log('Starting API call...', {
-        url: data.url,
-        method: data.method,
-        payload: data.payload
-      });
-      
-      // Reset states
-      setLocalResponse(null);
-      setShowOutput(true);
-      
-      // Update loading state
-      const updatedData = {
+      const response = fetchLocalData(data.url);
+      console.log('Fetched local data:', response);
+      data.onUpdate?.({
         ...data,
-        isLoading: true,
-        error: undefined,
-        response: undefined,
-        output: undefined
-      };
-      data.onUpdate?.(updatedData);
-
-      const result = await api.call({
-        id: data.id,
-        url: data.url,
-        method: data.method,
-        payload: data.payload
+        response: response.data,
+        output: response.data,
+        lastRun: new Date().toISOString(),
+        error: response.error
       });
-
-      console.log('API Call Success:', result);
-      const now = new Date();
-      
-      // Save to localStorage
-      storage.saveResponse(data.id, {
-        response: result,
-        lastRun: now
-      });
-
-      // Update local state first
-      setLocalResponse(result);
-      setLastRun(now);
-      setShowOutput(true);
-
-      // Then update node data
-      const successData = {
+    } catch (error) {
+      console.error('API call error:', error);
+      data.onUpdate?.({
         ...data,
-        isLoading: false,
-        response: result,
-        output: result,
-        lastRun: now,
-        error: undefined
-      };
-      data.onUpdate?.(successData);
-
-      console.log('States updated:', {
-        localResponse: result,
-        showOutput: true,
-        lastRun: now
+        error: error.message
       });
-
-    } catch (error: any) {
-      console.error('API Error:', error);
-      setLocalResponse(null);
-      setShowOutput(false);
-      
-      const errorData = {
-        ...data,
-        isLoading: false,
-        error: error.message,
-        response: undefined,
-        output: undefined,
-        lastRun: new Date()
-      };
-      data.onUpdate?.(errorData);
     }
   };
 
@@ -123,6 +66,12 @@ export const ApiNode = React.memo(({ data, isConnectable = true, selected }: Api
         response: savedData.response,
         output: savedData.response,
         lastRun: savedData.lastRun,
+        executeApiCall: apiCall
+      });
+    } else {
+      // Set executeApiCall if not loaded from saved data
+      data.onUpdate?.({
+        ...data,
         executeApiCall: apiCall
       });
     }
@@ -273,6 +222,13 @@ export const ApiNode = React.memo(({ data, isConnectable = true, selected }: Api
       <Handle
         type="source"
         position={isHorizontal ? Position.Right : Position.Bottom}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
+
+      <Handle
+        type="target"
+        position={isHorizontal ? Position.Left : Position.Top}
         style={handleStyle}
         isConnectable={isConnectable}
       />

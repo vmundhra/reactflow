@@ -17,21 +17,16 @@ export const ProjectMgmtNode = React.memo(({ data, isConnectable = true, selecte
 
   const executeQuery = useCallback(async () => {
     try {
-      // Example for Jira
-      const baseUrl = 'https://your-domain.atlassian.net/rest/api/3';
-      const endpoint = data.jqlQuery 
-        ? `/search?jql=${encodeURIComponent(data.jqlQuery)}`
-        : `/project/${data.projectKey}/issues`;
-
-      const response = await fetch(`${baseUrl}${endpoint}`, {
+      const response = await fetch(`${data.endpoint}`, {
         headers: {
-          'Authorization': `Basic ${btoa(data.apiToken || '')}`,
-          'Accept': 'application/json'
-        }
+          'Authorization': `Bearer ${data.apiKey}`,
+          'Content-Type': 'application/json',
+        },
       });
       
       const result = await response.json();
       
+      // Update node data
       data.onUpdate?.({
         ...data,
         response: result,
@@ -53,18 +48,16 @@ export const ProjectMgmtNode = React.memo(({ data, isConnectable = true, selecte
     <div style={{
       padding: '10px',
       borderRadius: '3px',
-      border: `1px solid ${platformColors[data.platform]}`,
+      border: '1px solid #9C27B0',
       background: 'white',
       minWidth: '250px',
       position: 'relative'
     }}>
       <div style={{ marginBottom: '8px' }}>
-        <span>📋 {data.platform.toUpperCase()}</span>
-        {data.projectKey && (
-          <span style={{ marginLeft: '8px', fontSize: '12px' }}>
-            {data.projectKey}
-          </span>
-        )}
+        <span>📋 Project Management</span>
+        <span style={{ marginLeft: '8px', fontSize: '12px' }}>
+          {data.platform}
+        </span>
       </div>
       
       {/* Rest of the UI similar to ApiNode */}
