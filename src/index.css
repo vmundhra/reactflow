@@ -10,3 +10,14 @@ body,
   height: 100%;
   margin: 0;
 }
+
+.response-markdown pre {
+  margin: 0;
+  background-color: transparent !important;
+}
+
+.response-markdown code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
