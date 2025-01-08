@@ -25,7 +25,104 @@ In this example pipeline:
 3. **Analysis A**: Processing and analysis of the transformed data
 4. **Pipeline Output**: Final output of the processed data
 
-Each node can be edited, deleted, or connected to other nodes to create a complete data processing pipeline.
+## Advanced Pipeline Flow
+
+![Advanced Pipeline Flow](public/AdvancedPipelineFlow.png)
+
+An advanced implementation showcasing project sourcing and material management integration.
+
+### Node Types
+
+#### 1. CMS Integration Node 📚
+- **Purpose**: Fetches project materials and resources
+- **Features**:
+  - Connects to headless CMS systems (Strapi, ContentStack, etc.)
+  - Configurable content types and filters
+  - Authentication handling
+  - Real-time content updates
+
+#### 2. Project Management Node 📋
+- **Purpose**: Integrates project management data
+- **Platforms**:
+  - Jira
+  - Asana
+  - Trello
+- **Features**:
+  - Custom query support (JQL for Jira)
+  - Task and timeline fetching
+  - Resource allocation data
+  - Status tracking
+
+#### 3. Data Processing Node 🔄
+- **Purpose**: Transforms and analyzes data
+- **Languages**:
+  - Python
+  - JavaScript
+- **Capabilities**:
+  - Data merging
+  - Format conversion
+  - Analytics processing
+  - Custom transformations
+
+#### 4. API Output Node 🔗
+- **Purpose**: Sends processed data to external systems
+- **Features**:
+  - Multiple HTTP methods
+  - Custom headers
+  - Authentication
+  - Error handling
+
+### Pipeline Workflow
+
+1. **Data Collection**
+   - CMS Node fetches material data
+   - Project Management Node retrieves task information
+   - Both nodes run in parallel
+
+2. **Data Processing**
+   - Python Node receives data from both sources
+   - Performs matching and analysis
+   - Generates combined dataset
+
+3. **Output Generation**
+   - API Node receives processed data
+   - Formats data for target system
+   - Sends updates to external service
+
+### State Management
+
+- Automatic state persistence using localStorage
+- Real-time updates across nodes
+- Error state handling and recovery
+- Progress tracking for long operations
+
+### Advanced Features
+
+1. **Node Controls**
+   - Resize handles
+   - Rotation controls
+   - Custom styling options
+   - Drag and drop positioning
+
+2. **Edge Features**
+   - Animated connections
+   - Custom edge styles
+   - Conditional formatting
+   - Bidirectional flows
+
+3. **Data Validation**
+   - Input validation
+   - Type checking
+   - Error visualization
+   - Schema validation
+
+4. **Pipeline Tools**
+   - Export/Import functionality
+   - Pipeline templates
+   - Version control
+   - Undo/Redo support
+
+Each node can be edited, deleted, or connected to other nodes to create a complete data processing pipeline. The system automatically handles data flow and state management between connected nodes.
 
 ## Tech Stack
 

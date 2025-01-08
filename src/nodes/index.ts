@@ -1,77 +1,115 @@
 import type { NodeTypes } from '@xyflow/react';
-
-import { PositionLoggerNode } from './PositionLoggerNode';
 import { ButtonNode } from './ButtonNode';
-import type { ButtonNode as ButtonNodeType } from './types';
-import { AppNode } from './types';
-import { SourceNode } from './SourceNode';
+import { ApiNode } from './ApiNode';
+import type { AppNode, ButtonNodeType } from './types';
+import { PythonNode } from './PythonNode';
+import { JavaScriptNode } from './JavaScriptNode';
+import { CmsNode } from './CmsNode';
+import { ProjectMgmtNode } from './ProjectMgmtNode';
 
 export const initialNodes: AppNode[] = [
   {
-    id: 'source1',
-    type: 'source',
-    position: { x: 100, y: 0 },
-    data: { 
-      label: 'Source Node',
-      sourceUrl: 'https://www.testapi.com/exampledata',
-      dataKey: 'results.data'
-    }
-  } as SourceNode,
-  {
-    id: 'header',
-    type: 'button',
+    id: 'cms1',
+    type: 'cms',
     position: { x: 100, y: 100 },
-    data: { 
-      label: 'React Flow Pipeline'
+    data: {
+      label: 'Fetch Project Materials',
+      contentType: 'materials',
+      endpoint: 'http://your-strapi.com/api/materials',
+      filters: {
+        status: 'published'
+      },
+      isHorizontal: false
     }
-  } as ButtonNodeType,
+  },
   {
-    id: 'node1',
-    type: 'button',
-    position: { x: 175, y: 200 },
-    data: { 
-      label: 'Node 1',
-      onClick: () => alert('Node 1 clicked!')
+    id: 'project1',
+    type: 'projectMgmt',
+    position: { x: 100, y: 250 },
+    data: {
+      label: 'Get Project Tasks',
+      platform: 'jira',
+      projectKey: 'PROJ',
+      jqlQuery: 'project = PROJ AND type = Task',
+      isHorizontal: false
     }
-  } as ButtonNodeType,
+  },
+  {
+    id: 'python1',
+    type: 'python',
+    position: { x: 400, y: 175 },
+    data: {
+      label: 'Process & Merge Data',
+      code: `# Merge CMS materials with project tasks
+materials = input['cms1']['response']
+tasks = input['project1']['response']
+
+# Map materials to tasks
+output = {
+    'materials': materials,
+    'tasks': tasks,
+    'mapped': [
+        {
+            'material': m,
+            'related_tasks': [t for t in tasks if t['fields']['summary'].lower().contains(m['title'].lower())]
+        }
+        for m in materials
+    ]
+}`,
+      isHorizontal: false
+    }
+  },
+  {
+    id: 'api1',
+    type: 'api',
+    position: { x: 700, y: 175 },
+    data: {
+      label: 'Update Project System',
+      method: 'POST',
+      url: 'https://your-project-system/api/update',
+      isHorizontal: false
+    }
+  }
 ];
 
 export const initialEdges = [
   {
-    id: 'source1-node1',
-    source: 'source1',
-    target: 'node1',
-    type: 'default',
-    animated: true,
-    style: { stroke: '#4CAF50' }
+    id: 'cms1-python1',
+    source: 'cms1',
+    target: 'python1',
+    animated: true
+  },
+  {
+    id: 'project1-python1',
+    source: 'project1',
+    target: 'python1',
+    animated: true
+  },
+  {
+    id: 'python1-api1',
+    source: 'python1',
+    target: 'api1',
+    animated: true
   }
 ];
 
-export const getNextNodeId = (nodes: AppNode[]) => {
-  const nodeIds = nodes
-    .map(node => node.id)
-    .filter(id => id.startsWith('node'))
-    .map(id => parseInt(id.replace('node', ''), 10))
-    .sort((a, b) => a - b);
+export const getNextNodeId = (nodes: AppNode[]): string => {
+  const nodeNumbers = nodes
+    .map(node => {
+      const match = node.id.match(/^node(\d+)$/);
+      return match ? parseInt(match[1], 10) : 0;
+    })
+    .filter(num => !isNaN(num));
 
-  console.log('Current node IDs:', nodeIds); // Debug log
-
-  // Find first gap in sequence
-  let nextId = 1;
-  for (const id of nodeIds) {
-    if (id !== nextId) {
-      console.log('Found gap, returning:', nextId); // Debug log
-      return `node${nextId}`;
-    }
-    nextId++;
-  }
-  
-  console.log('No gaps found, next ID:', nextId); // Debug log
-  return `node${nextId}`;
+  const maxNumber = nodeNumbers.length > 0 ? Math.max(...nodeNumbers) : 0;
+  return `node${maxNumber + 1}`;
 };
 
 export const nodeTypes: NodeTypes = {
-  'position-logger': PositionLoggerNode,
-  'button': ButtonNode,
-  'source': SourceNode
+  button: ButtonNode,
+  api: ApiNode,
+  python: PythonNode,
+  javascript: JavaScriptNode,
+  cms: CmsNode,
+  projectMgmt: ProjectMgmtNode
 };

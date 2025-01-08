@@ -1,31 +1,82 @@
-import { Node, NodeProps } from '@xyflow/react';
+import type { Node, NodeProps } from '@xyflow/react';
 
-export interface ButtonNodeData {
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+
+export interface BaseNodeData {
   label: string;
+  isHorizontal?: boolean;
+  [key: string]: any;
+}
+
+export interface ButtonNodeData extends BaseNodeData {
   onClick?: () => void;
-  handlePositionsUpdated?: number;
-  [key: string]: any;
 }
 
-export interface SourceNodeData {
+export interface ApiNodeData extends BaseNodeData {
+  id: string;
   label: string;
-  sourceUrl: string;
+  url: string;
+  method: HttpMethod;
+  payload?: string;
   dataKey?: string;
-  handlePositionsUpdated?: number;
+  isHorizontal?: boolean;
+  isLoading?: boolean;
+  error?: string;
+  response?: any;
+  output?: any;
+  lastRun?: Date;
+  executeApiCall?: () => Promise<void>;
+  onUpdate?: (data: ApiNodeData) => void;
   [key: string]: any;
 }
 
-export interface ButtonNodeProps extends NodeProps {
-  data: ButtonNodeData;
-  isHorizontal?: boolean;
+export interface ScriptNodeData extends BaseNodeData {
+  code: string;
+  isLoading?: boolean;
+  input?: any;
+  output?: any;
+  error?: string;
+  lastRun?: Date;
+  onUpdate?: (data: ScriptNodeData) => void;
+  executeScript?: () => Promise<void>;
 }
 
-export interface SourceNodeProps extends NodeProps {
-  data: SourceNodeData;
-  isHorizontal?: boolean;
+export interface CmsNodeData extends BaseNodeData {
+  id: string;
+  contentType: string;  // e.g., 'article', 'project', 'task'
+  endpoint: string;
+  filters?: Record<string, any>;
+  sort?: string;
+  limit?: number;
+  apiKey?: string;
+  response?: any;
+  error?: string;
+  lastRun?: Date;
+  executeQuery?: () => Promise<void>;
+  onUpdate?: (data: CmsNodeData) => void;
 }
+
+export interface ProjectMgmtNodeData extends BaseNodeData {
+  id: string;
+  platform: 'jira' | 'asana' | 'trello';
+  projectKey?: string;
+  issueType?: string;
+  jqlQuery?: string;
+  apiToken?: string;
+  response?: any;
+  error?: string;
+  lastRun?: Date;
+  executeQuery?: () => Promise<void>;
+  onUpdate?: (data: ProjectMgmtNodeData) => void;
+}
+
+export type ButtonNodeProps = NodeProps<ButtonNodeData>;
+export type ApiNodeProps = NodeProps<ApiNodeData>;
+export type ScriptNodeProps = NodeProps<ScriptNodeData>;
 
 export type ButtonNodeType = Node<ButtonNodeData>;
-export type SourceNodeType = Node<SourceNodeData>;
+export type ApiNodeType = Node<ApiNodeData>;
+export type ScriptNodeType = Node<ScriptNodeData>;
+export type AppNode = ButtonNodeType | ApiNodeType | ScriptNodeType;
 
-export type AppNode = ButtonNodeType | SourceNodeType;
+export type NodeType = 'button' | 'api' | 'python' | 'javascript' | 'cms' | 'projectMgmt';
