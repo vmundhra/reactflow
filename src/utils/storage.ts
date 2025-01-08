@@ -108,6 +108,11 @@ export const storage = {
       console.error('Error reading app state from localStorage:', error);
       return null;
     }
+  },
+
+  clearAll() {
+    localStorage.clear();
+    console.log('Local storage cleared');
   }
 };
 

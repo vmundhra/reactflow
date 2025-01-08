@@ -9,6 +9,15 @@ export const fetchLocalData = (endpoint) => {
         },
         lastRun: new Date().toISOString(),
       };
+    case '/api/update':
+      return {
+        success: true,
+        data: {
+          message: 'Updated project system successfully',
+          // Add more mock data as needed
+        },
+        lastRun: new Date().toISOString(),
+      };
     default:
       return {
         success: false,
