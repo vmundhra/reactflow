@@ -1,0 +1,360 @@
+{
+  "nodes": [
+    {
+      "id": "cms1",
+      "type": "cms",
+      "position": {
+        "x": 15,
+        "y": 450
+      },
+      "data": {
+        "label": "Fetch Project Materials",
+        "contentType": "materials",
+        "endpoint": "http://your-strapi.com/api/materials",
+        "filters": {
+          "status": "published"
+        },
+        "isHorizontal": false
+      },
+      "measured": {
+        "width": 150,
+        "height": 58
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "project1",
+      "type": "projectMgmt",
+      "position": {
+        "x": 15,
+        "y": 390
+      },
+      "data": {
+        "label": "Get Project Tasks",
+        "platform": "jira",
+        "projectKey": "PROJ",
+        "jqlQuery": "project = PROJ AND type = Task",
+        "isHorizontal": false
+      },
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "python1",
+      "type": "python",
+      "position": {
+        "x": 210,
+        "y": 270
+      },
+      "data": {
+        "label": "Process & Merge Data",
+        "code": "# Merge CMS materials with project tasks\nmaterials = input['cms1']['response']\ntasks = input['project1']['response']\n\n# Map materials to tasks\noutput = {\n    'materials': materials,\n    'tasks': tasks,\n    'mapped': [\n        {\n            'material': m,\n            'related_tasks': [t for t in tasks if t['fields']['summary'].lower().contains(m['title'].lower())]\n        }\n        for m in materials\n    ]\n}",
+        "isHorizontal": false
+      },
+      "measured": {
+        "width": 872,
+        "height": 347
+      },
+      "selected": false,
+      "dragging": false,
+      "width": 872,
+      "height": 347,
+      "resizing": false
+    },
+    {
+      "id": "api1",
+      "type": "api",
+      "position": {
+        "x": 180,
+        "y": -405
+      },
+      "data": {
+        "label": "Update Project System",
+        "isHorizontal": false,
+        "output": {
+          "success": false,
+          "error": "Failed to fetch",
+          "lastRun": "2025-01-08T17:02:44.515Z"
+        },
+        "response": {
+          "success": false,
+          "error": "Failed to fetch",
+          "lastRun": "2025-01-08T17:02:44.515Z"
+        },
+        "lastRun": "2025-01-08T17:02:44.516Z",
+        "method": "GET",
+        "url": "https://your-project-system/api/update",
+        "payload": "",
+        "dataKey": "",
+        "isLoading": false
+      },
+      "measured": {
+        "width": 336,
+        "height": 400
+      },
+      "selected": false,
+      "dragging": false,
+      "resizing": false,
+      "width": 336,
+      "height": 400
+    },
+    {
+      "id": "node1",
+      "type": "javascript",
+      "position": {
+        "x": 420,
+        "y": 615
+      },
+      "selected": false,
+      "data": {
+        "label": "OpenAI O1 Agent",
+        "isHorizontal": false,
+        "code": ""
+      },
+      "measured": {
+        "width": 442,
+        "height": 257
+      },
+      "dragging": false
+    },
+    {
+      "id": "node2",
+      "type": "button",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "selected": false,
+      "data": {
+        "label": "Start Pipeline",
+        "isHorizontal": false
+      },
+      "measured": {
+        "width": 165,
+        "height": 230
+      },
+      "dragging": false,
+      "width": 165,
+      "height": 230,
+      "resizing": false
+    },
+    {
+      "id": "node3",
+      "type": "javascript",
+      "position": {
+        "x": -105,
+        "y": 615
+      },
+      "selected": false,
+      "data": {
+        "label": "Node 3",
+        "isHorizontal": false,
+        "code": ""
+      },
+      "measured": {
+        "width": 442,
+        "height": 257
+      },
+      "dragging": false
+    },
+    {
+      "id": "node4",
+      "type": "javascript",
+      "position": {
+        "x": 150,
+        "y": 1320
+      },
+      "selected": false,
+      "data": {
+        "label": "Pipeline Run Completion",
+        "isHorizontal": false,
+        "input": {
+          "success": false,
+          "error": "Failed to fetch",
+          "lastRun": "2025-01-08T17:02:44.515Z"
+        },
+        "code": "// Current input data available as 'input' variable:\n/*\n{\n  \"success\": false,\n  \"error\": \"Failed to fetch\",\n  \"lastRun\": \"2025-01-08T17:02:44.515Z\"\n}\n*/\n\n// Process the input data\nfunction processData(data) {\n  // Add your data processing logic here\n  return {\n    processed: data,\n    timestamp: new Date().toISOString()\n  };\n}\n\n// Process input and assign to output\nconst output = processData(input);\n"
+      },
+      "measured": {
+        "width": 475,
+        "height": 435
+      },
+      "dragging": false,
+      "width": 475,
+      "height": 435,
+      "resizing": false
+    },
+    {
+      "id": "node5",
+      "type": "javascript",
+      "position": {
+        "x": 60,
+        "y": 1005
+      },
+      "selected": false,
+      "data": {
+        "label": "OpenAI Langchain Agent",
+        "isHorizontal": false,
+        "output": {
+          "success": false,
+          "error": "Failed to fetch",
+          "lastRun": "2025-01-08T17:02:44.515Z"
+        },
+        "response": {
+          "success": false,
+          "error": "Failed to fetch",
+          "lastRun": "2025-01-08T17:02:44.515Z"
+        },
+        "lastRun": "2025-01-08T17:02:44.516Z",
+        "code": "const output = input"
+      },
+      "measured": {
+        "width": 250,
+        "height": 195
+      },
+      "dragging": false
+    }
+  ],
+  "edges": [
+    {
+      "id": "a->c",
+      "source": "a",
+      "target": "c",
+      "animated": true
+    },
+    {
+      "id": "b->d",
+      "source": "b",
+      "target": "d"
+    },
+    {
+      "id": "c->d",
+      "source": "c",
+      "target": "d",
+      "animated": true
+    },
+    {
+      "id": "python1-node1",
+      "source": "python1",
+      "target": "node1",
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      }
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "project1",
+      "target": "cms1",
+      "id": "xy-edge__project1-cms1"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "cms1",
+      "target": "node3",
+      "id": "xy-edge__cms1-node3"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "node2",
+      "target": "project1",
+      "id": "xy-edge__node2-project1"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "api1",
+      "target": "node2",
+      "id": "xy-edge__api1-node2"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "api1",
+      "target": "python1",
+      "id": "xy-edge__api1-python1"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "node1",
+      "target": "node4",
+      "id": "xy-edge__node1-node4"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "node3",
+      "target": "node5",
+      "id": "xy-edge__node3-node5"
+    },
+    {
+      "type": "default",
+      "animated": true,
+      "style": {
+        "stroke": "#4CAF50",
+        "strokeWidth": 2,
+        "animation": "flow 1s linear infinite",
+        "strokeDasharray": "5 5"
+      },
+      "source": "node5",
+      "target": "node4",
+      "id": "xy-edge__node5-node4"
+    }
+  ],
+  "lastUpdated": "2025-01-08T17:37:39.117Z"
+} 
