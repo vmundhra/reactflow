@@ -25,9 +25,14 @@ In this example pipeline:
 3. **Analysis A**: Processing and analysis of the transformed data
 4. **Pipeline Output**: Final output of the processed data
 
+
+## Tree Node Anchor Point Rotation (Horizontal & Vertical Trees)
+
+![TreeRotation](public/TreeRotation.png)
+
 ## Advanced Pipeline Flow
 
-![Advanced Pipeline Flow](public/AdvancedPipelineFlow.png)
+![Advanced Pipeline Flow](public/ApiDriven.png)
 
 An advanced implementation showcasing project sourcing and material management integration.
 
@@ -96,6 +101,10 @@ An advanced implementation showcasing project sourcing and material management i
 - Error state handling and recovery
 - Progress tracking for long operations
 
+## Full Pipeline Flow With Logging & Local Storage
+
+![AdvancedPipelineFlow](public/AdvancedPipelineFlow.png)
+
 ### Advanced Features
 
 1. **Node Controls**
@@ -124,6 +133,10 @@ An advanced implementation showcasing project sourcing and material management i
 
 Each node can be edited, deleted, or connected to other nodes to create a complete data processing pipeline. The system automatically handles data flow and state management between connected nodes.
 
+## Javascript Modal Config
+
+![JavascriptModalConfig](public/JavascriptModalConfig.png)
+
 ## Tech Stack
 
 - React
@@ -150,6 +163,7 @@ Each node can be edited, deleted, or connected to other nodes to create a comple
 3. Connect nodes by dragging from one node's output handle to another node's input handle
 4. Edit nodes by clicking the edit button (🔧) in the top-right corner
 5. Delete nodes using the delete button (🗑️) in the top-right corner
+6. Rotate nodes anchor points by clicking the rotate button (🔄) in the top-right corner
 
 ## Future Enhancements
 
@@ -169,7 +183,3 @@ Links:
 Learn:
 - [React Flow – Custom Nodes](https://reactflow.dev/learn/customization/custom-nodes)
 - [React Flow – Layouting](https://reactflow.dev/learn/layouting/layouting)
-
-## License
-
-MIT`;
