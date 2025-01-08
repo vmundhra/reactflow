@@ -186,7 +186,7 @@ function Flow() {
 
   // Update default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    type: 'custom',
+    type: 'smoothstep',
     animated: true,
     style: { 
       stroke: '#4CAF50',
@@ -532,26 +532,28 @@ function Flow() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            border: '2px solid black'
           }}
         >
           <img src="/gear-icon.svg" alt="Settings" style={{ width: '24px', height: '24px' }} />
         </button>
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          padding: '8px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <RotationControl
-            isHorizontal={isHorizontal}
-            onRotate={handleRotate}
-          />
-        </div>
+        <button
+          onClick={handleRotate}
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '4px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            padding: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid black'
+          }}
+        >
+          <img src="/rotate-icon.svg" alt="Rotate" style={{ width: '24px', height: '24px' }} />
+        </button>
       </div>
       <ReactFlow
         nodes={nodes}
@@ -593,32 +595,6 @@ function Flow() {
           >
             Add Node
           </button>
-          <button 
-            onClick={handleClearBoard}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#F44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Clear Board
-          </button>
-          <button 
-            onClick={handleResetStorage}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#f44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Clear Local Storage
-          </button>
           <button
             onClick={handleRevertToDemo}
             style={{
@@ -657,6 +633,32 @@ function Flow() {
             }}
           >
             Load Project
+          </button>
+          <button 
+            onClick={handleClearBoard}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#F44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear Board
+          </button>
+          <button 
+            onClick={handleResetStorage}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#f44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear Local Storage
           </button>
         </div>
       </ReactFlow>
