@@ -109,4 +109,15 @@ export const storage = {
       return null;
     }
   }
+};
+
+export const saveProject = (projectData: any) => {
+  const timestamp = new Date().toISOString();
+  localStorage.setItem(`project_${timestamp}`, JSON.stringify(projectData));
+  console.log(`Project saved as project_${timestamp}`);
+};
+
+export const loadProject = (timestamp: string) => {
+  const projectData = localStorage.getItem(`project_${timestamp}`);
+  return projectData ? JSON.parse(projectData) : null;
 }; 

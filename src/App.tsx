@@ -37,9 +37,12 @@ import type {
 import { Modal } from './components/Modal';
 import { RotationControl } from './components/RotationControl';
 import { CustomEdge } from './components/CustomEdge';
-import { storage } from './utils/storage';
+import { storage, saveProject, loadProject } from './utils/storage';
 import { PythonNode } from './nodes/PythonNode';
 import { JavaScriptNode } from './nodes/JavaScriptNode';
+import { loadDemoConfig } from './utils/loadDemoConfig';
+import { SavedProjectsModal } from './components/SavedProjectsModal';
+import { SettingsModal } from './components/SettingsModal';
 
 // Define initial edges if not already defined
 const defaultEdges: Edge[] = [];
@@ -84,8 +87,11 @@ function Flow() {
   const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, setViewport } = useReactFlow();
   const updateNodeInternals = useUpdateNodeInternals();
+  const [isProjectsModalOpen, setIsProjectsModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [timezone, setTimezone] = useState('UTC');
 
   // Load saved state on mount
   useEffect(() => {
@@ -296,31 +302,38 @@ function Flow() {
     [screenToFlowPosition, nodes, isHorizontal]
   );
 
-  const handleAddNode = useCallback(() => {
-    setNodes((nodes) => {
-      const nextId = getNextNodeId(nodes);
-      const nodeNumber = parseInt(nextId.replace('node', ''), 10);
-      console.log('Adding node with ID:', nextId, 'Number:', nodeNumber);
-      
-      return [
-        ...nodes,
-        {
-          id: nextId,
-          type: 'button',
-          position: { 
-            x: Math.random() * 500, 
-            y: Math.random() * 500 
-          },
-          selected: false,
-          data: {
-            label: `Node ${nodeNumber}`,
-            onClick: () => alert(`Node ${nodeNumber} clicked!`),
-            isHorizontal
-          }
-        } as ButtonNodeType
-      ];
-    });
-  }, [setNodes, isHorizontal]);
+  const handleAddNode = () => {
+    if (reactFlowWrapper.current) {
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      let position;
+
+      if (nodes.length === 0) {
+        // If no nodes, place the first node at the center
+        position = screenToFlowPosition({
+          x: reactFlowBounds.width / 2,
+          y: reactFlowBounds.height / 2
+        });
+      } else if (isHorizontal) {
+        const rightmostNode = nodes.reduce((prev, current) => (prev.position.x > current.position.x) ? prev : current);
+        position = { x: rightmostNode.position.x + 150, y: rightmostNode.position.y };
+      } else {
+        const lowestNode = nodes.reduce((prev, current) => (prev.position.y > current.position.y) ? prev : current);
+        position = { x: lowestNode.position.x, y: lowestNode.position.y + 150 };
+      }
+
+      const newNode = {
+        id: getNextNodeId(nodes),
+        type: 'button',
+        position,
+        data: {
+          label: 'Button Node',
+          onClick: () => alert('Button Node clicked!'),
+          isHorizontal
+        }
+      } as ButtonNodeType;
+      setNodes((nds) => nds.concat(newNode));
+    }
+  };
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
@@ -430,23 +443,116 @@ function Flow() {
   }, [setEdges]);
 
   const handleResetStorage = useCallback(() => {
-    if (window.confirm('Are you sure you want to reset all nodes and clear storage? This action cannot be undone.')) {
-      // Clear all storage
-      localStorage.clear();
-      // Reset React Flow state
-      setNodes([]);
-      setEdges([]);
-      // Force reload after state is cleared
-      window.location.reload();
+    if (window.confirm('Are you sure you want to reset to demo data? This action cannot be undone.')) {
+      const demoConfig = loadDemoConfig();
+      setNodes(demoConfig.nodes);
+      setEdges(demoConfig.edges);
+      storage.saveAppState(demoConfig.nodes, demoConfig.edges);
+      console.log('Storage reset to demo data');
     }
   }, [setNodes, setEdges]);
 
+  const handleRevertToDemo = () => {
+    const demoConfig = loadDemoConfig();
+    setNodes(demoConfig.nodes);
+    setEdges(demoConfig.edges);
+    storage.saveAppState(demoConfig.nodes, demoConfig.edges);
+  };
+
+  const handleClearBoard = () => {
+    setNodes([]);
+    setEdges([]);
+    console.log('Board cleared');
+    setViewport({ x: 0, y: 0, zoom: 1 });
+  };
+
+  const renderAddNodeButton = () => {
+    if (nodes.length === 0) {
+      return (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          textAlign: 'center',
+          zIndex: 10
+        }}>
+          <button
+            onClick={handleAddNode}
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              border: '2px solid #4CAF50',
+              backgroundColor: 'silver',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}
+          >
+            <span style={{
+              fontSize: '24px',
+              color: '#4CAF50'
+            }}>+</span>
+          </button>
+          <div style={{
+            color: '#4CAF50',
+            fontSize: '16px',
+            marginTop: '10px'
+          }}>
+            Add your first node
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh' }} ref={reactFlowWrapper}>
-      <RotationControl
-        isHorizontal={isHorizontal}
-        onRotate={handleRotate}
-      />
+      <div style={{
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 5,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px'
+      }}>
+        <button
+          onClick={() => setIsSettingsModalOpen(true)}
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '4px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            padding: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <img src="/gear-icon.svg" alt="Settings" style={{ width: '24px', height: '24px' }} />
+        </button>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          padding: '8px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <RotationControl
+            isHorizontal={isHorizontal}
+            onRotate={handleRotate}
+          />
+        </div>
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -488,6 +594,19 @@ function Flow() {
             Add Node
           </button>
           <button 
+            onClick={handleClearBoard}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#F44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Clear Board
+          </button>
+          <button 
             onClick={handleResetStorage}
             style={{
               padding: '8px 16px',
@@ -498,7 +617,46 @@ function Flow() {
               cursor: 'pointer',
             }}
           >
-            Reset Storage
+            Clear Local Storage
+          </button>
+          <button
+            onClick={handleRevertToDemo}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: 'blue',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Revert to Demo
+          </button>
+          <button
+            onClick={() => saveProject({ nodes, edges })}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Save Project
+          </button>
+          <button
+            onClick={() => setIsProjectsModalOpen(true)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Load Project
           </button>
         </div>
       </ReactFlow>
@@ -509,6 +667,21 @@ function Flow() {
         node={selectedNode}
         hasChanges={hasChanges}
       />
+      <SavedProjectsModal
+        isOpen={isProjectsModalOpen}
+        onClose={() => setIsProjectsModalOpen(false)}
+        onLoad={(projectData) => {
+          setNodes(projectData.nodes);
+          setEdges(projectData.edges);
+        }}
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        onTimezoneChange={setTimezone}
+        currentTimezone={timezone}
+      />
+      {renderAddNodeButton()}
     </div>
   );
 }

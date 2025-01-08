@@ -8,7 +8,7 @@
         "y": 450
       },
       "data": {
-        "label": "Fetch Project Materials",
+        "label": "Fetch Project Materials", 
         "contentType": "materials",
         "endpoint": "http://your-strapi.com/api/materials",
         "filters": {
@@ -45,7 +45,7 @@
       "dragging": false
     },
     {
-      "id": "python1",
+      "id": "python1", 
       "type": "python",
       "position": {
         "x": 210,
@@ -68,10 +68,10 @@
     },
     {
       "id": "api1",
-      "type": "api",
+      "type": "api", 
       "position": {
-        "x": 180,
-        "y": -405
+        "x": 195,
+        "y": -195
       },
       "data": {
         "label": "Update Project System",
@@ -83,7 +83,7 @@
         },
         "response": {
           "success": false,
-          "error": "Failed to fetch",
+          "error": "Failed to fetch", 
           "lastRun": "2025-01-08T17:02:44.515Z"
         },
         "lastRun": "2025-01-08T17:02:44.516Z",
@@ -228,7 +228,7 @@
       "animated": true
     },
     {
-      "id": "b->d",
+      "id": "b->d", 
       "source": "b",
       "target": "d"
     },
@@ -356,5 +356,5 @@
       "id": "xy-edge__node5-node4"
     }
   ],
-  "lastUpdated": "2025-01-08T17:37:39.117Z"
-} 
+  "lastUpdated": "2025-01-08T19:40:36.198Z"
+}
