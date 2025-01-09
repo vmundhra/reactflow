@@ -8,6 +8,7 @@ interface CustomEdgeProps extends EdgeProps {
 
 export const CustomEdge = ({
   id,
+  animated = true,
   sourceX,
   sourceY,
   targetX,
@@ -18,7 +19,6 @@ export const CustomEdge = ({
   markerEnd,
   data,
   selected,
-  animated,
   onEdgeClick
 }: CustomEdgeProps) => {
   const [isHovered, setIsHovered] = useState(false);

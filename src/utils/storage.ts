@@ -22,6 +22,8 @@ const STORAGE_KEYS = {
   API_RESPONSES: 'api-node-responses'
 };
 
+let isClearing = false;
+
 export const storage = {
   // API Response methods
   saveResponse(nodeId: string, data: NodeResponse) {
@@ -66,6 +68,7 @@ export const storage = {
 
   // App State methods
   saveAppState(nodes: AppNode[], edges: Edge[]) {
+    if (isClearing) return; // Don't save while clearing
     try {
       const state: AppState = {
         nodes,
@@ -111,8 +114,62 @@ export const storage = {
   },
 
   clearAll() {
+    console.log('=== Storage Clear Process Started ===');
+    console.log('Current URL:', window.location.href);
+    console.log('localStorage object:', localStorage);
+    
+    isClearing = true;
+    
+    try {
+      // Get and log all keys
+      const keys = Object.keys(localStorage);
+      console.log('Found localStorage keys:', keys);
+      console.log('Current localStorage contents:');
+      keys.forEach(key => {
+        const value = localStorage.getItem(key);
+        console.log(`${key}:`, value);
+      });
+
+      // Clear each key
+      console.log('\nClearing keys...');
+      keys.forEach(key => {
+        try {
+          console.log(`Removing key: "${key}"`);
+          localStorage.removeItem(key);
+          const checkRemoved = localStorage.getItem(key);
+          console.log(`Key "${key}" removal ${checkRemoved === null ? 'successful' : 'FAILED'}`);
+        } catch (error) {
+          console.error(`Error removing key "${key}":`, error);
+        }
+      });
+
+      // Verify clear operation
+      const remainingKeys = Object.keys(localStorage);
+      console.log('\nVerification after clear:');
+      console.log('Remaining keys:', remainingKeys);
+      console.log('localStorage length:', localStorage.length);
+      
+      if (remainingKeys.length > 0) {
+        console.warn('WARNING: Some keys still remain:', remainingKeys);
+        console.log('Attempting force clear...');
+        localStorage.clear();
+        console.log('Force clear completed. Final key count:', Object.keys(localStorage).length);
+      }
+
+    } catch (error) {
+      console.error('Critical error during storage clear:', error);
+    } finally {
+      console.log('=== Storage Clear Process Completed ===');
+      isClearing = false;
+    }
+  },
+
+  clear: () => {
+    isClearing = true;
     localStorage.clear();
-    console.log('Local storage cleared');
+    setTimeout(() => {
+      isClearing = false;
+    }, 100); // Reset flag after clear operation
   }
 };
 
