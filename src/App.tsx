@@ -151,7 +151,7 @@ function Flow() {
       ...edge,
       // Force edge recreation with new positions
       id: `${edge.source}-${edge.target}-${Date.now()}`,
-      type: 'smoothstep',
+      type: 'bezier',
       sourcePosition: newIsHorizontal ? Position.Right : Position.Bottom,
       targetPosition: newIsHorizontal ? Position.Left : Position.Top,
       animated: true,
@@ -186,7 +186,7 @@ function Flow() {
 
   // Update default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    type: 'smoothstep',
+    type: 'bezier',
     animated: true,
     style: { 
       stroke: '#4CAF50',
@@ -442,16 +442,6 @@ function Flow() {
     setEdges((eds) => eds.filter((e) => e.id !== edge.id));
   }, [setEdges]);
 
-  const handleResetStorage = useCallback(() => {
-    if (window.confirm('Are you sure you want to reset to demo data? This action cannot be undone.')) {
-      const demoConfig = loadDemoConfig();
-      setNodes(demoConfig.nodes);
-      setEdges(demoConfig.edges);
-      storage.saveAppState(demoConfig.nodes, demoConfig.edges);
-      console.log('Storage reset to demo data');
-    }
-  }, [setNodes, setEdges]);
-
   const handleRevertToDemo = () => {
     const demoConfig = loadDemoConfig();
     setNodes(demoConfig.nodes);
@@ -460,6 +450,8 @@ function Flow() {
   };
 
   const handleClearBoard = () => {
+    console.log('Clearing storage');
+    storage.clearAll(); // Clear all storage first
     setNodes([]);
     setEdges([]);
     console.log('Board cleared');
@@ -552,7 +544,16 @@ function Flow() {
             border: '2px solid black'
           }}
         >
-          <img src="/rotate-icon.svg" alt="Rotate" style={{ width: '24px', height: '24px' }} />
+          <img 
+            src="/rotate-icon.svg" 
+            alt="Rotate" 
+            style={{ 
+              width: '24px', 
+              height: '24px',
+              transform: isHorizontal ? 'rotate(90deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s ease-in-out'
+            }} 
+          />
         </button>
       </div>
       <ReactFlow
@@ -596,19 +597,6 @@ function Flow() {
             Add Node
           </button>
           <button
-            onClick={handleRevertToDemo}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: 'blue',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Revert to Demo
-          </button>
-          <button
             onClick={() => saveProject({ nodes, edges })}
             style={{
               padding: '8px 16px',
@@ -647,18 +635,18 @@ function Flow() {
           >
             Clear Board
           </button>
-          <button 
-            onClick={handleResetStorage}
+          <button
+            onClick={handleRevertToDemo}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#f44336',
+              backgroundColor: 'blue',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer',
             }}
           >
-            Clear Local Storage
+            Revert to Demo
           </button>
         </div>
       </ReactFlow>

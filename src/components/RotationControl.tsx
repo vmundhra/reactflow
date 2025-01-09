@@ -46,8 +46,8 @@ export const RotationControl: React.FC<RotationControlProps> = ({ isHorizontal, 
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            transform: isHorizontal ? 'rotate(90deg)' : 'none',
-            transition: 'transform 0.3s ease'
+            transform: isHorizontal ? 'rotate(0deg)' : 'rotate(90deg)',
+            transition: 'transform 0.3s ease-in-out'
           }}
         >
           <path d="M21 12a9 9 0 0 0-9-9 9 9 0 0 0-9 9" />

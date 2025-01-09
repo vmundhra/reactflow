@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loadProject } from '../utils/storage';
+import { loadProject, storage } from '../utils/storage';
 import { loadDemoConfig } from '../utils/loadDemoConfig';
 import { format } from 'date-fns';
 
@@ -36,9 +36,51 @@ export const SavedProjectsModal: React.FC<SavedProjectsModalProps> = ({ isOpen, 
     onClose();
   };
 
+  const handleDeleteProject = (key: string) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      localStorage.removeItem(key);
+      setSavedProjects(prevKeys => prevKeys.filter(k => k !== key));
+    }
+  };
+
   const formatTimestamp = (key: string) => {
     const timestamp = key.replace('project_', '');
     return format(new Date(timestamp), 'PPpp');
+  };
+
+  const handleClearStorage = () => {
+    console.log('Clear storage button clicked');
+    
+    if (window.confirm('Are you sure you want to clear all storage? This action cannot be undone.')) {
+      console.log('Starting clear storage process...');
+      
+      // Find and remove all project keys
+      const keys = Object.keys(localStorage);
+      console.log('Current localStorage keys:', keys);
+      keys.forEach(key => {
+        if (key.startsWith('project_')) {
+          console.log(`Removing project key: ${key}`);
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Clear other app state
+      storage.clearAll();
+      
+      // Wait for clear operation to complete
+      setTimeout(() => {
+        // Load demo configuration
+        const demoConfig = loadDemoConfig();
+        console.log('Loading demo configuration:', demoConfig);
+        
+        // Update state with demo data
+        onLoad(demoConfig);
+        
+        // Close modal and update projects list
+        onClose();
+        setSavedProjects(['Demo Project']);
+      }, 200);
+    }
   };
 
   if (!isOpen) return null;
@@ -65,11 +107,11 @@ export const SavedProjectsModal: React.FC<SavedProjectsModalProps> = ({ isOpen, 
         overflowY: 'auto',
       }}>
         <h2>Saved Projects</h2>
-        <ul>
-          {savedProjects.map(key => (
-            <li key={key} style={{ marginBottom: '10px' }}>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {savedProjects.map((key, index) => (
+            <li key={key} style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <button onClick={() => handleLoad(key)} style={{
-                width: '100%',
+                flexGrow: 1,
                 padding: '10px',
                 backgroundColor: '#4CAF50',
                 color: 'white',
@@ -79,20 +121,43 @@ export const SavedProjectsModal: React.FC<SavedProjectsModalProps> = ({ isOpen, 
               }}>
                 {key === 'Demo Project' ? key : formatTimestamp(key)}
               </button>
+              {key !== 'Demo Project' && (
+                <button onClick={() => handleDeleteProject(key)} style={{
+                  marginLeft: '10px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}>
+                  🗑️
+                </button>
+              )}
             </li>
           ))}
         </ul>
-        <button onClick={onClose} style={{
-          marginTop: '20px',
-          padding: '10px',
-          backgroundColor: '#f44336',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}>
-          Close
-        </button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <button onClick={handleClearStorage} style={{
+            flex: 1,
+            padding: '10px',
+            backgroundColor: '#f44336',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>
+            Clear All Projects
+          </button>
+          <button onClick={onClose} style={{
+            flex: 1,
+            padding: '10px',
+            backgroundColor: '#757575',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}>
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
