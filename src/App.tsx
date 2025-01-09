@@ -21,8 +21,7 @@ import {
 
 import '@xyflow/react/dist/style.css';
 
-import { initialNodes, getNextNodeId } from './nodes';
-import { initialEdges } from './edges';
+import { getNextNodeId } from './nodes';
 import { NodeControls } from './components/NodeControls';
 import { ButtonNode } from './nodes/ButtonNode';
 import { ApiNode } from './nodes/ApiNode';
@@ -32,7 +31,8 @@ import type {
   ApiNodeType, 
   ButtonNodeData, 
   ApiNodeData,
-  HttpMethod
+  HttpMethod,
+  ScriptNodeType
 } from './nodes/types';
 import { Modal } from './components/Modal';
 import { RotationControl } from './components/RotationControl';
@@ -80,9 +80,9 @@ const createWithControls = (
 };
 
 function Flow() {
-  const reactFlowWrapper = useRef(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -101,9 +101,10 @@ function Flow() {
       setNodes(savedState.nodes);
       setEdges(savedState.edges);
     } else {
-      // Load initial state if no saved state exists
-      setNodes(initialNodes);
-      setEdges(initialEdges);
+      // Load demo config if no saved state exists
+      const demoConfig = loadDemoConfig();
+      setNodes(demoConfig.nodes);
+      setEdges(demoConfig.edges);
     }
   }, [setNodes, setEdges]);
 
@@ -572,7 +573,7 @@ function Flow() {
         defaultEdgeOptions={defaultEdgeOptions}
       >
         <Background />
-        <MiniMap />
+        <MiniMap zoomable pannable />
         <Controls />
         <div style={{ 
           position: 'absolute', 
