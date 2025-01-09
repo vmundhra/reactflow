@@ -21,8 +21,7 @@ import {
 
 import '@xyflow/react/dist/style.css';
 
-import { initialNodes, getNextNodeId } from './nodes';
-import { initialEdges } from './edges';
+import { getNextNodeId } from './nodes';
 import { NodeControls } from './components/NodeControls';
 import { ButtonNode } from './nodes/ButtonNode';
 import { ApiNode } from './nodes/ApiNode';
@@ -32,7 +31,8 @@ import type {
   ApiNodeType, 
   ButtonNodeData, 
   ApiNodeData,
-  HttpMethod
+  HttpMethod,
+  ScriptNodeType
 } from './nodes/types';
 import { Modal } from './components/Modal';
 import { RotationControl } from './components/RotationControl';
@@ -43,6 +43,8 @@ import { JavaScriptNode } from './nodes/JavaScriptNode';
 import { loadDemoConfig } from './utils/loadDemoConfig';
 import { SavedProjectsModal } from './components/SavedProjectsModal';
 import { SettingsModal } from './components/SettingsModal';
+import { CmsNode } from './nodes/CmsNode';
+import { ProjectMgmtNode } from './nodes/ProjectMgmtNode';
 
 // Define initial edges if not already defined
 const defaultEdges: Edge[] = [];
@@ -80,9 +82,9 @@ const createWithControls = (
 };
 
 function Flow() {
-  const reactFlowWrapper = useRef(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -101,9 +103,10 @@ function Flow() {
       setNodes(savedState.nodes);
       setEdges(savedState.edges);
     } else {
-      // Load initial state if no saved state exists
-      setNodes(initialNodes);
-      setEdges(initialEdges);
+      // Load demo config if no saved state exists
+      const demoConfig = loadDemoConfig();
+      setNodes(demoConfig.nodes);
+      setEdges(demoConfig.edges);
     }
   }, [setNodes, setEdges]);
 
@@ -151,7 +154,7 @@ function Flow() {
       ...edge,
       // Force edge recreation with new positions
       id: `${edge.source}-${edge.target}-${Date.now()}`,
-      type: 'bezier',
+      type: 'custom',
       sourcePosition: newIsHorizontal ? Position.Right : Position.Bottom,
       targetPosition: newIsHorizontal ? Position.Left : Position.Top,
       animated: true,
@@ -176,7 +179,9 @@ function Flow() {
     button: createWithControls(ButtonNode, isHorizontal, handleEditNode, handleDeleteNode),
     api: createWithControls(ApiNode, isHorizontal, handleEditNode, handleDeleteNode),
     python: createWithControls(PythonNode, isHorizontal, handleEditNode, handleDeleteNode),
-    javascript: createWithControls(JavaScriptNode, isHorizontal, handleEditNode, handleDeleteNode)
+    javascript: createWithControls(JavaScriptNode, isHorizontal, handleEditNode, handleDeleteNode),
+    cms: createWithControls(CmsNode, isHorizontal, handleEditNode, handleDeleteNode),
+    projectMgmt: createWithControls(ProjectMgmtNode, isHorizontal, handleEditNode, handleDeleteNode)
   }), [isHorizontal, handleEditNode, handleDeleteNode]);
 
   // Define edge types
@@ -186,7 +191,7 @@ function Flow() {
 
   // Update default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    type: 'bezier',
+    type: 'custom',
     animated: true,
     style: { 
       stroke: '#4CAF50',
@@ -245,7 +250,7 @@ function Flow() {
     setEdges((eds) => addEdge(
       {
         ...params,
-        type: 'default',
+        type: 'custom',
         animated: true,
         style: { 
           stroke: '#4CAF50',
@@ -572,7 +577,7 @@ function Flow() {
         defaultEdgeOptions={defaultEdgeOptions}
       >
         <Background />
-        <MiniMap />
+        <MiniMap zoomable pannable />
         <Controls />
         <div style={{ 
           position: 'absolute', 

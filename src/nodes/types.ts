@@ -74,10 +74,14 @@ export interface ProjectMgmtNodeData extends BaseNodeData {
 export type ButtonNodeProps = NodeProps<ButtonNodeData>;
 export type ApiNodeProps = NodeProps<ApiNodeData>;
 export type ScriptNodeProps = NodeProps<ScriptNodeData>;
+export type CmsNodeProps = NodeProps<CmsNodeData>;
+export type ProjectMgmtNodeProps = NodeProps<ProjectMgmtNodeData>;
 
 export type ButtonNodeType = Node<ButtonNodeData>;
 export type ApiNodeType = Node<ApiNodeData>;
 export type ScriptNodeType = Node<ScriptNodeData>;
-export type AppNode = ButtonNodeType | ApiNodeType | ScriptNodeType;
+export type CmsNodeType = Node<CmsNodeData>;
+export type ProjectMgmtNodeType = Node<ProjectMgmtNodeData>;
+export type AppNode = ButtonNodeType | ApiNodeType | ScriptNodeType | CmsNodeType | ProjectMgmtNodeType;
 
 export type NodeType = 'button' | 'api' | 'python' | 'javascript' | 'cms' | 'projectMgmt';

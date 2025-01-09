@@ -1,15 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Handle, Position, NodeResizer } from '@xyflow/react';
-import ReactMarkdown from 'react-markdown';
-import type { ProjectMgmtNodeData } from './types';
-import { storage } from '../utils/storage';
+import type { ProjectMgmtNodeProps } from './types';
 
-export const ProjectMgmtNode = React.memo(({ data, isConnectable = true, selected }: ProjectMgmtProps) => {
+export const ProjectMgmtNode = React.memo(({ data, isConnectable = true, selected }: ProjectMgmtNodeProps) => {
   const [showOutput, setShowOutput] = useState(false);
   const handleStyle = { background: '#4CAF50' };
   const isHorizontal = data.isHorizontal;
 
-  const platformColors = {
+  const platformColors: Record<'jira' | 'asana' | 'trello', string> = {
     jira: '#0052CC',
     asana: '#F06A6A',
     trello: '#0079BF'
@@ -53,14 +51,43 @@ export const ProjectMgmtNode = React.memo(({ data, isConnectable = true, selecte
       minWidth: '250px',
       position: 'relative'
     }}>
+      <NodeResizer
+        color="#9C27B0"
+        isVisible={selected}
+        minWidth={250}
+        minHeight={100}
+        handleStyle={{ width: '8px', height: '8px' }}
+        lineStyle={{ border: '1px solid #9C27B0' }}
+        keepAspectRatio={false}
+      />
+      <Handle
+        type="target"
+        position={isHorizontal ? Position.Left : Position.Top}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
       <div style={{ marginBottom: '8px' }}>
         <span>📋 Project Management</span>
-        <span style={{ marginLeft: '8px', fontSize: '12px' }}>
+        <span style={{ 
+          marginLeft: '8px', 
+          fontSize: '12px',
+          backgroundColor: platformColors[data.platform as keyof typeof platformColors],
+          color: 'white',
+          padding: '2px 6px',
+          borderRadius: '3px'
+        }}>
           {data.platform}
         </span>
       </div>
       
       {/* Rest of the UI similar to ApiNode */}
+      
+      <Handle
+        type="source"
+        position={isHorizontal ? Position.Right : Position.Bottom}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
     </div>
   );
 }); 
