@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Handle, Position, NodeResizer } from '@xyflow/react';
-import ReactMarkdown from 'react-markdown';
-import type { CmsNodeData } from './types';
-import { storage } from '../utils/storage';
+import type { CmsNodeProps } from './types';
 
 export const CmsNode = React.memo(({ data, isConnectable = true, selected }: CmsNodeProps) => {
   const [showOutput, setShowOutput] = useState(false);
@@ -47,6 +45,21 @@ export const CmsNode = React.memo(({ data, isConnectable = true, selected }: Cms
       minWidth: '250px',
       position: 'relative'
     }}>
+      <NodeResizer
+        color="#9C27B0"
+        isVisible={selected}
+        minWidth={250}
+        minHeight={100}
+        handleStyle={{ width: '8px', height: '8px' }}
+        lineStyle={{ border: '1px solid #9C27B0' }}
+        keepAspectRatio={false}
+      />
+      <Handle
+        type="target"
+        position={isHorizontal ? Position.Left : Position.Top}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
       <div style={{ marginBottom: '8px' }}>
         <span>📚 CMS</span>
         <span style={{ marginLeft: '8px', fontSize: '12px' }}>
@@ -55,6 +68,13 @@ export const CmsNode = React.memo(({ data, isConnectable = true, selected }: Cms
       </div>
       
       {/* Rest of the UI similar to ApiNode */}
+      
+      <Handle
+        type="source"
+        position={isHorizontal ? Position.Right : Position.Bottom}
+        style={handleStyle}
+        isConnectable={isConnectable}
+      />
     </div>
   );
 }); 

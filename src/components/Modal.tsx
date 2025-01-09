@@ -21,6 +21,13 @@ interface ModalProps {
     dataKey?: string;
     type?: string;
     code?: string;
+    contentType?: string;
+    endpoint?: string;
+    apiKey?: string;
+    platform?: 'jira' | 'asana' | 'trello';
+    projectKey?: string;
+    jqlQuery?: string;
+    apiToken?: string;
   }) => void;
   node: AppNode | null;
   hasChanges: boolean;
@@ -30,7 +37,9 @@ const nodeTypeOptions = [
   { value: 'button', label: 'Button Node' },
   { value: 'api', label: 'API Node' },
   { value: 'python', label: 'Python Script' },
-  { value: 'javascript', label: 'JavaScript Script' }
+  { value: 'javascript', label: 'JavaScript Script' },
+  { value: 'cms', label: 'CMS Integration' },
+  { value: 'projectMgmt', label: 'Project Management' }
 ];
 
 export const Modal: React.FC<ModalProps> = ({ 
@@ -48,42 +57,57 @@ export const Modal: React.FC<ModalProps> = ({
   const [selectedType, setSelectedType] = useState('');
   const [hasChanges, setHasChanges] = useState(initialHasChanges);
   const [code, setCode] = useState('');
+  const [contentType, setContentType] = useState('');
+  const [endpoint, setEndpoint] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [platform, setPlatform] = useState('');
+  const [projectKey, setProjectKey] = useState('');
+  const [jqlQuery, setJqlQuery] = useState('');
+  const [apiToken, setApiToken] = useState('');
 
   useEffect(() => {
     if (node) {
       setLabel(node.data.label || '');
-      setUrl(node.data.url || '');
-      setMethod(node.data.method || 'GET');
-      setPayload(node.data.payload || '');
-      setDataKey(node.data.dataKey || '');
-      if (!selectedType) {
-        setSelectedType(node.type || 'button');
-      }
-      setCode(node.data.code || '');
+      setSelectedType(node.type || 'button');
       
-      // Show current input in code placeholder if available
-      if (node.data.input && selectedType === 'javascript') {
-        const inputExample = JSON.stringify(node.data.input, null, 2);
-        setCode(`// Current input data available as 'input' variable:
-/*
-${inputExample}
-*/
+      // Reset all fields
+      setUrl('');
+      setMethod('GET');
+      setPayload('');
+      setDataKey('');
+      setCode('');
+      setContentType('');
+      setEndpoint('');
+      setApiKey('');
+      setPlatform('jira');
+      setProjectKey('');
+      setJqlQuery('');
+      setApiToken('');
 
-// Process the input data
-function processData(data) {
-  // Add your data processing logic here
-  return {
-    processed: data,
-    timestamp: new Date().toISOString()
-  };
-}
-
-// Process input and assign to output
-const output = processData(input);
-`);
+      // Set fields based on node type
+      switch (node.type) {
+        case 'api':
+          setUrl(node.data.url || '');
+          setMethod((node.data.method || 'GET') as HttpMethod);
+          setPayload(node.data.payload || '');
+          setDataKey(node.data.dataKey || '');
+          break;
+        case 'python':
+        case 'javascript':
+          setCode(node.data.code || '');
+          break;
+        case 'cms':
+          setContentType(node.data.contentType || '');
+          setEndpoint(node.data.endpoint || '');
+          setApiKey(node.data.apiKey || '');
+          break;
+        case 'projectMgmt':
+          setPlatform(node.data.platform || 'jira');
+          setProjectKey(node.data.projectKey || '');
+          setJqlQuery(node.data.jqlQuery || '');
+          setApiToken(node.data.apiToken || '');
+          break;
       }
-      
-      setHasChanges(false);
     }
   }, [node]);
 
@@ -115,15 +139,35 @@ const output = processData(input);
   if (!isOpen) return null;
 
   const handleSave = () => {
-    onSave({ 
-      label,
-      url,
-      method,
-      payload,
-      dataKey,
-      type: selectedType,
-      code
-    });
+    const updates: any = { label };
+
+    switch (selectedType) {
+      case 'api':
+        updates.url = url;
+        updates.method = method;
+        updates.payload = payload;
+        updates.dataKey = dataKey;
+        break;
+      case 'python':
+      case 'javascript':
+        updates.code = code;
+        break;
+      case 'cms':
+        updates.contentType = contentType;
+        updates.endpoint = endpoint;
+        updates.apiKey = apiKey;
+        break;
+      case 'projectMgmt':
+        updates.platform = platform;
+        updates.projectKey = projectKey;
+        updates.jqlQuery = jqlQuery;
+        updates.apiToken = apiToken;
+        break;
+    }
+
+    updates.type = selectedType;
+    onSave(updates);
+    setHasChanges(false);
   };
 
   const handleInputChange = (setter: (value: any) => void) => (
@@ -361,6 +405,130 @@ const output = processData(input);
                   fontFamily: 'monospace'
                 }}
                 placeholder={selectedType === 'python' ? defaultPythonCode : defaultJavaScriptCode}
+              />
+            </div>
+          </>
+        )}
+
+        {selectedType === 'cms' && (
+          <>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Content Type:</label>
+              <input
+                type="text"
+                value={contentType || ''}
+                onChange={handleInputChange(setContentType)}
+                placeholder="e.g., article, project, task"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>API Endpoint:</label>
+              <input
+                type="text"
+                value={endpoint || ''}
+                onChange={handleInputChange(setEndpoint)}
+                placeholder="https://your-cms-api.com/content"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>API Key:</label>
+              <input
+                type="password"
+                value={apiKey || ''}
+                onChange={handleInputChange(setApiKey)}
+                placeholder="Enter your CMS API key"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
+              />
+            </div>
+          </>
+        )}
+
+        {selectedType === 'projectMgmt' && (
+          <>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Platform:</label>
+              <select
+                value={platform || 'jira'}
+                onChange={handleInputChange(setPlatform)}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
+              >
+                <option value="jira">Jira</option>
+                <option value="asana">Asana</option>
+                <option value="trello">Trello</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Project Key:</label>
+              <input
+                type="text"
+                value={projectKey || ''}
+                onChange={handleInputChange(setProjectKey)}
+                placeholder="e.g., PROJ"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Query:</label>
+              <textarea
+                value={jqlQuery || ''}
+                onChange={handleInputChange(setJqlQuery)}
+                placeholder="e.g., project = PROJ AND type = Task"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px',
+                  minHeight: '80px'
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>API Token:</label>
+              <input
+                type="password"
+                value={apiToken || ''}
+                onChange={handleInputChange(setApiToken)}
+                placeholder="Enter your platform API token"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '10px'
+                }}
               />
             </div>
           </>

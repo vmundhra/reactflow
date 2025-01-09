@@ -12,6 +12,8 @@ interface NodeControlsProps {
 export const NodeControls: React.FC<NodeControlsProps> = ({ node, onEdit, onDelete }) => {
   const isHeader = node.id === 'header';
   const isApiNode = node.type === 'api';
+  const isCmsNode = node.type === 'cms';
+  const isProjectMgmtNode = node.type === 'projectMgmt';
 
   if (isHeader) return null;
 
@@ -22,17 +24,21 @@ export const NodeControls: React.FC<NodeControlsProps> = ({ node, onEdit, onDele
     if (node.data && typeof node.data.executeApiCall === 'function') {
       console.log('Executing API call...');
       node.data.executeApiCall();
+    } else if (node.data && typeof node.data.executeQuery === 'function') {
+      console.log('Executing query...');
+      node.data.executeQuery();
     } else {
-      console.error('executeApiCall is not available:', {
+      console.error('Execute function is not available:', {
         nodeData: node.data,
-        executeApiCall: node.data?.executeApiCall
+        executeApiCall: node.data?.executeApiCall,
+        executeQuery: node.data?.executeQuery
       });
     }
   };
 
   return (
     <div style={nodeControlsStyles.container}>
-      {isApiNode && (
+      {(isApiNode || isCmsNode || isProjectMgmtNode) && (
         <button
           onClick={handlePlayClick}
           disabled={node.data.isLoading}
@@ -41,7 +47,7 @@ export const NodeControls: React.FC<NodeControlsProps> = ({ node, onEdit, onDele
             backgroundColor: node.data.isLoading ? '#ccc' : '#4CAF50',
             color: 'white',
           }}
-          title={node.data.isLoading ? 'Running...' : 'Run API Call'}
+          title={node.data.isLoading ? 'Running...' : 'Run Query'}
         >
           {node.data.isLoading ? '⌛' : '▶️'}
         </button>

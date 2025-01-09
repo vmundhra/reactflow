@@ -43,6 +43,8 @@ import { JavaScriptNode } from './nodes/JavaScriptNode';
 import { loadDemoConfig } from './utils/loadDemoConfig';
 import { SavedProjectsModal } from './components/SavedProjectsModal';
 import { SettingsModal } from './components/SettingsModal';
+import { CmsNode } from './nodes/CmsNode';
+import { ProjectMgmtNode } from './nodes/ProjectMgmtNode';
 
 // Define initial edges if not already defined
 const defaultEdges: Edge[] = [];
@@ -152,7 +154,7 @@ function Flow() {
       ...edge,
       // Force edge recreation with new positions
       id: `${edge.source}-${edge.target}-${Date.now()}`,
-      type: 'bezier',
+      type: 'custom',
       sourcePosition: newIsHorizontal ? Position.Right : Position.Bottom,
       targetPosition: newIsHorizontal ? Position.Left : Position.Top,
       animated: true,
@@ -177,7 +179,9 @@ function Flow() {
     button: createWithControls(ButtonNode, isHorizontal, handleEditNode, handleDeleteNode),
     api: createWithControls(ApiNode, isHorizontal, handleEditNode, handleDeleteNode),
     python: createWithControls(PythonNode, isHorizontal, handleEditNode, handleDeleteNode),
-    javascript: createWithControls(JavaScriptNode, isHorizontal, handleEditNode, handleDeleteNode)
+    javascript: createWithControls(JavaScriptNode, isHorizontal, handleEditNode, handleDeleteNode),
+    cms: createWithControls(CmsNode, isHorizontal, handleEditNode, handleDeleteNode),
+    projectMgmt: createWithControls(ProjectMgmtNode, isHorizontal, handleEditNode, handleDeleteNode)
   }), [isHorizontal, handleEditNode, handleDeleteNode]);
 
   // Define edge types
@@ -187,7 +191,7 @@ function Flow() {
 
   // Update default edge options
   const defaultEdgeOptions = useMemo(() => ({
-    type: 'bezier',
+    type: 'custom',
     animated: true,
     style: { 
       stroke: '#4CAF50',
@@ -246,7 +250,7 @@ function Flow() {
     setEdges((eds) => addEdge(
       {
         ...params,
-        type: 'default',
+        type: 'custom',
         animated: true,
         style: { 
           stroke: '#4CAF50',
